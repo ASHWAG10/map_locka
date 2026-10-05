@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>خريطة الخزائن | جامعة القصيم</title>
+
+  <style>
+    :root {
+      --navy: #102f5d;
+      --blue: #3476bd;
+      --pale-blue: #eaf2fb;
+      --background: #f4f7fb;
+      --white: #fff;
+      --text: #203047;
+      --muted: #718096;
+      --line: #dce5ef;
+      --green: #21845c;
+      --green-bg: #e8f5ee;
+      --amber: #a66a13;
+      --amber-bg: #fff3dc;
+      --red: #a84444;
+      --red-bg: #f9eaea;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--background);
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    .topbar {
+      padding: 18px max(20px, calc((100% - 900px) / 2));
+      color: var(--white);
+      background: var(--navy);
+      font-weight: bold;
+    }
+
+    main {
+      width: min(100% - 30px, 820px);
+      margin: 35px auto;
+    }
+
+    .intro {
+      margin-bottom: 24px;
+    }
+
+    .intro p {
+      margin: 0 0 5px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(25px, 5vw, 34px);
+    }
+
+    .description {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .choice-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .choices {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 22px;
+      padding: 5px;
+      border-radius: 12px;
+      background: #e7edf5;
+    }
+
+    .choice {
+      flex: 1;
+      padding: 12px 10px;
+      border-radius: 9px;
+      color: #53647a;
+      cursor: pointer;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #college-science:checked ~ main label[for="college-science"],
+    #college-literary:checked ~ main label[for="college-literary"],
+    #floor-ground:checked ~ main label[for="floor-ground"],
+    #floor-first:checked ~ main label[for="floor-first"] {
+      color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 2px 8px rgb(16 47 93 / 12%);
+    }
+
+    #college-science:focus-visible ~ main label[for="college-science"],
+    #college-literary:focus-visible ~ main label[for="college-literary"],
+    #floor-ground:focus-visible ~ main label[for="floor-ground"],
+    #floor-first:focus-visible ~ main label[for="floor-first"] {
+      outline: 3px solid var(--blue);
+    }
+
+    .map-card {
+      padding: clamp(18px, 4vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: 0 8px 25px rgb(16 47 93 / 6%);
+    }
+
+    .map-title {
+      margin: 0 0 4px;
+      color: var(--navy);
+      font-size: 21px;
+    }
+
+    .map-title::after {
+      content: "الكلية العلمية بالرس — الدور الأرضي";
+    }
+
+    #college-science:checked ~ #floor-first:checked ~ main .map-title::after {
+      content: "الكلية العلمية بالرس — الدور الأول";
+    }
+
+    #college-literary:checked ~ #floor-ground:checked ~ main .map-title::after {
+      content: "الكلية الأدبية بالرس — الدور الأرضي";
+    }
+
+    #college-literary:checked ~ #floor-first:checked ~ main .map-title::after {
+      content: "الكلية الأدبية بالرس — الدور الأول";
+    }
+
+    .map-note {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .map-area {
+      padding: clamp(14px, 3vw, 24px);
+      border: 2px solid #d6e2f0;
+      border-radius: 14px;
+      background:
+        linear-gradient(90deg, transparent 49%, #edf2f8 49%, #edf2f8 51%, transparent 51%),
+        #f8fafd;
+    }
+
+    .map-label {
+      margin: 0 0 14px;
+      color: #53647a;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .locker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .locker {
+      min-height: 66px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #cbd9eb;
+      border-radius: 10px;
+      background: var(--pale-blue);
+      color: var(--navy);
+      font-size: 17px;
+      font-weight: bold;
+      direction: ltr;
+    }
+
+    .locker.reserved {
+      border-color: #eed9b5;
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .locker.unavailable {
+      border-color: #ebcccc;
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: #53647a;
+      font-size: 13px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      display: inline-block;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .dot.reserved {
+      background: #d19331;
+    }
+
+    .dot.unavailable {
+      background: #c45b5b;
+    }
+
+    .disclaimer {
+      margin: 14px 2px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .choices {
+        flex-direction: column;
+      }
+
+      .locker-grid {
+        gap: 7px;
+      }
+
+      .locker {
+        min-height: 54px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- اختيارات الكلية والدور -->
+  <input class="choice-input" type="radio" name="college"
+         id="college-science" checked>
+  <input class="choice-input" type="radio" name="college"
+         id="college-literary">
+  <input class="choice-input" type="radio" name="floor"
+         id="floor-ground" checked>
+  <input class="choice-input" type="radio" name="floor"
+         id="floor-first">
+
+  <header class="topbar">خزانتي | جامعة القصيم</header>
+
+  <main>
+    <section class="intro">
+      <p>خريطة مواقع الخزائن</p>
+      <h1>اختاري الكلية والدور</h1>
+      <p class="description">استعرضي مواقع الخزائن وحالتها في كل دور.</p>
+    </section>
+
+    <h2 class="map-label">اختيار الكلية</h2>
+    <div class="choices">
+      <label class="choice" for="college-science">الكلية العلمية بالرس</label>
+      <label class="choice" for="college-literary">الكلية الأدبية بالرس</label>
+    </div>
+
+    <h2 class="map-label">اختيار الدور</h2>
+    <div class="choices">
+      <label class="choice" for="floor-ground">الدور الأرضي</label>
+      <label class="choice" for="floor-first">الدور الأول</label>
+    </div>
+
+    <section class="map-card">
+      <h2 class="map-title" aria-label="الكلية والدور المختاران"></h2>
+      <p class="map-note">مخطط توضيحي لمواقع الخزائن داخل الدور</p>
+
+      <div class="map-area">
+        <p class="map-label">منطقة الخزائن — ٢٥ خزانة</p>
+
+        <div class="locker-grid" aria-label="مخطط توضيحي للخزائن">
+          <span class="locker">01</span>
+          <span class="locker">02</span>
+          <span class="locker reserved">03</span>
+          <span class="locker">04</span>
+          <span class="locker unavailable">05</span>
+
+          <span class="locker">06</span>
+          <span class="locker">07</span>
+          <span class="locker">08</span>
+          <span class="locker reserved">09</span>
+          <span class="locker">10</span>
+
+          <span class="locker">11</span>
+          <span class="locker unavailable">12</span>
+          <span class="locker">13</span>
+          <span class="locker">14</span>
+          <span class="locker">15</span>
+
+          <span class="locker reserved">16</span>
+          <span class="locker">17</span>
+          <span class="locker">18</span>
+          <span class="locker unavailable">19</span>
+          <span class="locker">20</span>
+
+          <span class="locker">21</span>
+          <span class="locker">22</span>
+          <span class="locker">23</span>
+          <span class="locker">24</span>
+          <span class="locker">25</span>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot"></i>متاحة</span>
+        <span><i class="dot reserved"></i>محجوزة</span>
+        <span><i class="dot unavailable"></i>غير متاحة</span>
+      </div>
+    </section>
+
+    <p class="disclaimer">
+      المخطط ومواقع الخزائن والحالات افتراضية للتوضيح، وتحتاج إلى تحديث حسب التوزيع الفعلي.
+    </p>
+  </main>
+</body>
+</html>
